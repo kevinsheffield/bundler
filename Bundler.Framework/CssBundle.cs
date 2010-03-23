@@ -47,7 +47,7 @@ namespace Bundler.Framework
 
         void ICssBundleBuilder.AsNamed(string name, string renderTo)
         {
-            Render(renderTo, name);
+            Render(renderTo, name, null);
         }
 
         string ICssBundle.RenderNamed(string name)
@@ -62,10 +62,15 @@ namespace Bundler.Framework
 
         string ICssBundleBuilder.Render(string renderTo)
         {
-            return Render(renderTo, renderTo);
+            return Render(renderTo, renderTo, null);
         }
 
-        private string Render(string renderTo, string key)
+        string ICssBundleBuilder.Render(string renderTo, string linkTo)
+        {
+            return Render(renderTo, renderTo, linkTo);
+        }
+
+        private string Render(string renderTo, string key, string linkTo)
         {
             if (debugStatusReader.IsDebuggingEnabled())
             {
@@ -83,7 +88,7 @@ namespace Bundler.Framework
                         string outputFile = ResolveAppRelativePathToFileSystem(renderTo);
                         string compressedCss = ProcessCssInput(GetFilePaths(cssFiles), outputFile, null, YuiCompressor.Identifier);
                         string hash = Hasher.Create(compressedCss);
-                        string renderedCssTag = String.Format(CssTemplate, mediaTag, ExpandAppRelativePath(renderTo) + "?r=" + hash);
+                        string renderedCssTag = String.Format(CssTemplate, mediaTag, ExpandAppRelativePath(linkTo ?? renderTo) + "?r=" + hash);
                         renderedCssFiles.Add(key, renderedCssTag);
                     }
                 }

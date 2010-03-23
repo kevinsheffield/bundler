@@ -36,7 +36,7 @@ namespace Bundler.Framework
 
         public void AsNamed(string name, string renderTo)
         {
-            Render(renderTo, name);
+            Render(renderTo, name, null);
         }
 
         string IJavaScriptBundle.RenderNamed(string name)
@@ -50,10 +50,15 @@ namespace Bundler.Framework
 
         string IJavaScriptBundleBuilder.Render(string renderTo)
         {
-            return Render(renderTo, renderTo);
+            return Render(renderTo, renderTo, null);
         }
 
-        private string Render(string renderTo, string key)
+        string IJavaScriptBundleBuilder.Render(string renderTo, string linkTo)
+        {
+            return Render(renderTo, renderTo, linkTo);
+        }
+
+        private string Render(string renderTo, string key, string linkTo)
         {
             if (debugStatusReader.IsDebuggingEnabled())
             {
@@ -71,7 +76,7 @@ namespace Bundler.Framework
                         string outputFile = ResolveAppRelativePathToFileSystem(renderTo);
                         string minifiedJavaScript = ProcessJavaScriptInput(GetFilePaths(javaScriptFiles), outputFile, null, JsMinMinifier.Identifier);
                         string hash = Hasher.Create(minifiedJavaScript);
-                        string renderedScriptTag = String.Format(scriptTemplate, ExpandAppRelativePath(renderTo) + "?r=" + hash);
+                        string renderedScriptTag = String.Format(scriptTemplate, ExpandAppRelativePath(linkTo ?? renderTo) + "?r=" + hash);
                         renderedJavaScriptFiles.Add(key, renderedScriptTag);
                     }
                 }
